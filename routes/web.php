@@ -16,3 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/clear-log', function () {
+    File::put(storage_path('logs/laravel.log'), '');
+    return 'Log berhasil dikosongkan!';
+});
