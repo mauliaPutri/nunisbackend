@@ -21,3 +21,11 @@ Route::get('/clear-log', function () {
     File::put(storage_path('logs/laravel.log'), '');
     return 'Log berhasil dikosongkan!';
 });
+
+Route::get('/check-region', function () {
+    return response()->json([
+        'region' => gethostname(),
+        'ip' => request()->ip(),
+        'time' => now()->toDateTimeString()
+    ]);
+});
