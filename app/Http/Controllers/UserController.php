@@ -148,263 +148,263 @@ class UserController extends Controller
         ]);
     }
 
-    public function updateUserProfile(Request $request)
-    {
-        $user = User::where('email', $request->email)->first();
+    // public function updateUserProfile(Request $request)
+    // {
+    //     $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
-            return response()->json(["Error" => "Pengguna tidak ditemukan"], 404);
-        }
+    //     if (!$user) {
+    //         return response()->json(["Error" => "Pengguna tidak ditemukan"], 404);
+    //     }
 
-        // Hanya memperbarui field yang dikirim dalam request
-        if ($request->has('nama')) {
-            $user->nama = $request->nama;
-        }
-        if ($request->has('address')) {
-            $user->address = $request->address; 
-        }
-        if ($request->has('phone')) {
-            $user->phone = $request->phone;
-        }
+    //     // Hanya memperbarui field yang dikirim dalam request
+    //     if ($request->has('nama')) {
+    //         $user->nama = $request->nama;
+    //     }
+    //     if ($request->has('address')) {
+    //         $user->address = $request->address; 
+    //     }
+    //     if ($request->has('phone')) {
+    //         $user->phone = $request->phone;
+    //     }
 
-        $user->save();
+    //     $user->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Profil berhasil diperbarui',
-            'user' => $user
-        ], 200);
-    }
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Profil berhasil diperbarui',
+    //         'user' => $user
+    //     ], 200);
+    // }
 
-    public function updateUserStatus(Request $request, $email)
-    {
-        try {
-            $user = User::where('email', $email)->first();
+    // public function updateUserStatus(Request $request, $email)
+    // {
+    //     try {
+    //         $user = User::where('email', $email)->first();
 
-            // if (!$user) {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'User tidak ditemukan'
-            //     ], 404);
-            // }
+    //         // if (!$user) {
+    //         //     return response()->json([
+    //         //         'success' => false,
+    //         //         'message' => 'User tidak ditemukan'
+    //         //     ], 404);
+    //         // }
 
-            // $validatedData = $request->validate([
-            //     'status' => 'required|integer|in:0,1'
-            // ]);
+    //         // $validatedData = $request->validate([
+    //         //     'status' => 'required|integer|in:0,1'
+    //         // ]);
 
-            // $user->status = $validatedData['status'];
-            // $user->save();
+    //         // $user->status = $validatedData['status'];
+    //         // $user->save();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Status user berhasil diperbarui',
-                'user' => $user
-            ], 200);
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Status user berhasil diperbarui',
+    //             'user' => $user
+    //         ], 200);
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data tidak valid',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            \Log::error('Error updating pengguna status: ' . $e->getMessage());
+    //     } catch (\Illuminate\Validation\ValidationException $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Data tidak valid',
+    //             'errors' => $e->errors()
+    //         ], 422);
+    //     } catch (\Exception $e) {
+    //         \Log::error('Error updating pengguna status: ' . $e->getMessage());
             
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat memperbarui status pengguna',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Terjadi kesalahan saat memperbarui status pengguna',
+    //             'error' => config('app.debug') ? $e->getMessage() : null
+    //         ], 500);
+    //     }
+    // }
 
-    // PERBAIKAN FUNCTION FORGOT PASSWORD
-public function forgotPassword(Request $request, $email){
-    try {
-        // Validasi email format
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Format email tidak valid'
-            ], 400);
-        }
+//     // PERBAIKAN FUNCTION FORGOT PASSWORD
+//     public function forgotPassword(Request $request, $email){
+//     try {
+//         // Validasi email format
+//         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+//             return response()->json([
+//                 'success' => false,
+//                 'message' => 'Format email tidak valid'
+//             ], 400);
+//         }
 
-        $user = User::where('email', $email)->first();
+//         $user = User::where('email', $email)->first();
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pengguna tidak ditemukan'
-            ], 404);
-        }
+//         if (!$user) {
+//             return response()->json([
+//                 'success' => false,
+//                 'message' => 'Pengguna tidak ditemukan'
+//             ], 404);
+//         }
 
-        // Generate OTP 6 digit
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+//         // Generate OTP 6 digit
+//         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         
-        // Set expired time (15 menit)
-        $otpExpired = now()->addMinutes(10);
+//         // Set expired time (15 menit)
+//         $otpExpired = now()->addMinutes(10);
         
-        // Update OTP di database - WAJIB DIAKTIFKAN!
-        $user->otp = $otp;
-        $user->otp_expired_at = $otpExpired; // pastikan kolom ini ada di database
-        $user->save(); // PENTING: jangan dikomentari!
+//         // Update OTP di database - WAJIB DIAKTIFKAN!
+//         $user->otp = $otp;
+//         $user->otp_expired_at = $otpExpired; // pastikan kolom ini ada di database
+//         $user->save(); // PENTING: jangan dikomentari!
 
-        // Data untuk email template
-        $mailData = [
-            'otp' => $otp,
-            'email' => $email,
-            'user_name' => $user->name ?? 'User',
-            'expired_time' => '10 menit'
-        ];
+//         // Data untuk email template
+//         $mailData = [
+//             'otp' => $otp,
+//             'email' => $email,
+//             'user_name' => $user->name ?? 'User',
+//             'expired_time' => '10 menit'
+//         ];
 
-        // Simpan OTP ke database
-        // $user->save();
+//         // Simpan OTP ke database
+//         // $user->save();
 
-        // Kirim email OTP menggunakan Mail facade
-        try {
-            Mail::send('emails.otp', $mailData, function($message) use ($email) {
-                $message->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME', 'Nunis Warung & Koffie'))
-                        ->to($email)
-                        ->subject('Kode OTP Reset Password - Nunis Warung & Koffie');
-            });
+//         // Kirim email OTP menggunakan Mail facade
+//         try {
+//             Mail::send('emails.otp', $mailData, function($message) use ($email) {
+//                 $message->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME', 'Nunis Warung & Koffie'))
+//                         ->to($email)
+//                         ->subject('Kode OTP Reset Password - Nunis Warung & Koffie');
+//             });
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Kode OTP telah dikirim ke email Anda',
-                'email' => $email
-            ], 200);
+//             return response()->json([
+//                 'success' => true,
+//                 'message' => 'Kode OTP telah dikirim ke email Anda',
+//                 'email' => $email
+//             ], 200);
 
-        } catch (\Exception $e) {
-            \Log::error('Error sending OTP: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
+//         } catch (\Exception $e) {
+//             \Log::error('Error sending OTP: ' . $e->getMessage());
+//             \Log::error('Stack trace: ' . $e->getTraceAsString());
             
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat mengirim OTP. Silakan coba lagi.',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
-        }
+//             return response()->json([
+//                 'success' => false,
+//                 'message' => 'Terjadi kesalahan saat mengirim OTP. Silakan coba lagi.',
+//                 'error' => config('app.debug') ? $e->getMessage() : null
+//             ], 500);
+//         }
 
-    } catch (\Exception $e) {
-        \Log::error('Error sending OTP: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Terjadi kesalahan saat mengirim OTP. Silakan coba lagi.',
-            'error' => config('app.debug') ? $e->getMessage() : null
-        ], 500);
-    }
-}
+//     } catch (\Exception $e) {
+//         \Log::error('Error sending OTP: ' . $e->getMessage());
+//         return response()->json([
+//             'success' => false,
+//             'message' => 'Terjadi kesalahan saat mengirim OTP. Silakan coba lagi.',
+//             'error' => config('app.debug') ? $e->getMessage() : null
+//         ], 500);
+//     }
+// }
 
 
-// PERBAIKAN FUNCTION VERIFY OTP
-public function verifyOTP(Request $request)
-{
-    try {
-        // Validasi input
-        $validatedData = $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required|string|size:6'
-        ]);
+//     // PERBAIKAN FUNCTION VERIFY OTP
+//     public function verifyOTP(Request $request)
+//     {
+//     try {
+//         // Validasi input
+//         $validatedData = $request->validate([
+//             'email' => 'required|email',
+//             'otp' => 'required|string|size:6'
+//         ]);
 
-        $user = User::where('email', $validatedData['email'])->first();
+//         $user = User::where('email', $validatedData['email'])->first();
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pengguna tidak ditemukan'
-            ], 404);
-        }
+//         if (!$user) {
+//             return response()->json([
+//                 'success' => false,
+//                 'message' => 'Pengguna tidak ditemukan'
+//             ], 404);
+//         }
 
-        // Check OTP
-        if (!$user->otp || $user->otp !== $validatedData['otp']) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Kode OTP tidak valid'
-            ], 400);
-        }
+//         // Check OTP
+//         if (!$user->otp || $user->otp !== $validatedData['otp']) {
+//             return response()->json([
+//                 'success' => false,
+//                 'message' => 'Kode OTP tidak valid'
+//             ], 400);
+//         }
 
-        // Check expired (jika ada kolom otp_expired_at)
-        if ($user->otp_expired_at && $user->otp_expired_at < now()) {
-            // Clear expired OTP
-            $user->otp = null;
-            $user->otp_expired_at = null;
-            $user->save();
+//         // Check expired (jika ada kolom otp_expired_at)
+//         if ($user->otp_expired_at && $user->otp_expired_at < now()) {
+//             // Clear expired OTP
+//             $user->otp = null;
+//             $user->otp_expired_at = null;
+//             $user->save();
             
-            return response()->json([
-                'success' => false,
-                'message' => 'Kode OTP sudah expired. Silakan minta OTP baru.'
-            ], 400);
-        }
+//             return response()->json([
+//                 'success' => false,
+//                 'message' => 'Kode OTP sudah expired. Silakan minta OTP baru.'
+//             ], 400);
+//         }
 
-        // OTP valid, clear dari database
-        $user->otp = null;
-        $user->otp_expired_at = null;
-        $user->save();
+//         // OTP valid, clear dari database
+//         $user->otp = null;
+//         $user->otp_expired_at = null;
+//         $user->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kode OTP berhasil diverifikasi',
-            'email' => $user->email
-        ], 200);
+//         return response()->json([
+//             'success' => true,
+//             'message' => 'Kode OTP berhasil diverifikasi',
+//             'email' => $user->email
+//         ], 200);
 
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Data tidak valid',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        \Log::error('Error verifying OTP: ' . $e->getMessage());
+//     } catch (\Illuminate\Validation\ValidationException $e) {
+//         return response()->json([
+//             'success' => false,
+//             'message' => 'Data tidak valid',
+//             'errors' => $e->errors()
+//         ], 422);
+//     } catch (\Exception $e) {
+//         \Log::error('Error verifying OTP: ' . $e->getMessage());
         
-        return response()->json([
-            'success' => false,
-            'message' => 'Terjadi kesalahan saat verifikasi OTP',
-            'error' => config('app.debug') ? $e->getMessage() : null
-        ], 500);
-    }
-}
-public function resetPassword(Request $request)
-{
-    try {
-        $validatedData = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8'
-        ]);
+//         return response()->json([
+//             'success' => false,
+//             'message' => 'Terjadi kesalahan saat verifikasi OTP',
+//             'error' => config('app.debug') ? $e->getMessage() : null
+//         ], 500);
+//     }
+// }
+// public function resetPassword(Request $request)
+// {
+//     try {
+//         $validatedData = $request->validate([
+//             'email' => 'required|email',
+//             'password' => 'required|min:8'
+//         ]);
 
-        $user = User::where('email', $validatedData['email'])->first();
+//         $user = User::where('email', $validatedData['email'])->first();
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pengguna tidak ditemukan'
-            ], 404);
-        }
+//         if (!$user) {
+//             return response()->json([
+//                 'success' => false,
+//                 'message' => 'Pengguna tidak ditemukan'
+//             ], 404);
+//         }
 
-        // Update password
-        $user->password = Hash::make($validatedData['password']);
-        $user->save();
+//         // Update password
+//         $user->password = Hash::make($validatedData['password']);
+//         $user->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Password berhasil direset'
-        ], 200);
+//         return response()->json([
+//             'success' => true,
+//             'message' => 'Password berhasil direset'
+//         ], 200);
 
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Data tidak valid',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        \Log::error('Error resetting password: ' . $e->getMessage());
+//     } catch (\Illuminate\Validation\ValidationException $e) {
+//         return response()->json([
+//             'success' => false,
+//             'message' => 'Data tidak valid',
+//             'errors' => $e->errors()
+//         ], 422);
+//     } catch (\Exception $e) {
+//         \Log::error('Error resetting password: ' . $e->getMessage());
         
-        return response()->json([
-            'success' => false,
-            'message' => 'Terjadi kesalahan saat mereset password',
-            'error' => config('app.debug') ? $e->getMessage() : null
-        ], 500);
-    }
-}
+//         return response()->json([
+//             'success' => false,
+//             'message' => 'Terjadi kesalahan saat mereset password',
+//             'error' => config('app.debug') ? $e->getMessage() : null
+//         ], 500);
+//     }
+// }
 
 
     
